@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Timer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <svg id="progressBarContainer" width="144" height="300">
+            <defs>
+                <pattern id="pattern1" x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse">
+                    <circle cx="5" cy="5" r="3" stroke="0" fill="white"/>
+                </pattern>
+            </defs>
+            <rect id="progressBar" x="0" y="0" width="144" height="300" style="fill: url(#pattern1);"/>
+        </svg>
+
+        <div id="clock">
+            <p>Ready!</p>
+        </div>
+
+        <div id="content">
+            <!-- Time selection dropdowns -->
+            <select class="selector" id="hours">
+                <!-- Hours options -->
+                <option value="0">0 hours</option>
+                <option value="1">1 hour</option>
+                <option value="2">2 hours</option>
+                <option value="3">3 hours</option>
+                <option value="4">4 hours</option>
+                <option value="5">5 hours</option>
+                <option value="6">6 hours</option>
+                <option value="7">7 hours</option>
+                <option value="8">8 hours</option>
+                <option value="9">9 hours</option>
+                <option value="10">10 hours</option>
+                <option value="11">11 hours</option>
+                <option value="12">12 hours</option>
+            </select>
+
+            <select class="selector" id="minutes">
+                <!-- Minutes options -->
+                <option value="0">0 min</option>
+                <option value="15">15 min</option>
+                <option value="30">30 min</option>
+                <option value="45">45 min</option>
+            </select>
+
+            <select class="selector" id="seconds">
+                <!-- Seconds options -->
+                <option value="0">0 sec</option>
+                <option value="15">15 sec</option>
+                <option value="30">30 sec</option>
+                <option value="45">45 sec</option>
+            </select>
+        </div>
+
+        <div class="buttonSection">
+            <div class="button1">
+                <button class="roundButton" id="start">Start</button>
+            </div>
+            <div class="button2">
+                <button class="roundButton" id="cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var startTime, endTime, origTimePeriod, newTimePeriod, timer;
+        var cancelled = false;
+
+        document.getElementById("start").addEventListener('click', startTimer);
+        document.getElementById("cancel").addEventListener('click', cancelledButtonPressed);
+
+        function startTimer() {
+            cancelled = false; // Reset cancelled flag
+            clearInterval(timer); // Ensure no duplicate timers
+
+            startTime = new Date();
+            endTime = getEndTime();
+            newTimePeriod = endTime - startTime;
+            origTimePeriod = newTimePeriod; 
+
+            if (newTimePeriod <= 0) {
+                document.getElementById("clock").innerHTML = "Invalid time set!";
+                return;
+            }
+
+            timer = setInterval(displayCountdown, 1000);
+        }
+
+        function displayCountdown() {
+            if (newTimePeriod <= 0 || cancelled) {
+                clearInterval(timer);
+                document.getElementById("clock").innerHTML = "<p>Time's up!</p>";
+                return;
+            }
+
+            let hours = Math.floor(newTimePeriod / 3600000);
+            let minutes = Math.floor((newTimePeriod % 3600000) / 60000);
+            let seconds = Math.floor((newTimePeriod % 60000) / 1000);
+
+            document.getElementById("clock").innerHTML = `${hours} hours ${minutes} min ${seconds} sec`;
+
+            var newHeight = Math.floor((newTimePeriod / origTimePeriod) * 300);
+            document.getElementById("progressBar").setAttribute("height", newHeight);
+
+            newTimePeriod -= 1000;
+            if (newTimePeriod < 0) newTimePeriod = 0;
+        }
+
+        function cancelledButtonPressed() {
+            cancelled = true;
+            clearInterval(timer); // Stop the countdown immediately
+        }
+
+        function getEndTime() {
+            let dt = new Date();
+            let hours = parseInt(document.getElementById("hours").value) || 0;
+            let minutes = parseInt(document.getElementById("minutes").value) || 0;
+            let seconds = parseInt(document.getElementById("seconds").value) || 0;
+
+            console.log(`Hours: ${hours}, Minutes: ${minutes}, Seconds: ${seconds}`);
+
+            dt.setHours(dt.getHours() + hours);
+            dt.setMinutes(dt.getMinutes() + minutes);
+            dt.setSeconds(dt.getSeconds() + seconds);
+
+            return dt;
+        }
+    </script>
+</body>
+</html>
